@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 const Public = (props) => {
     try {
         const token = localStorage.getItem('usertoken');
-        console.log(token,'publiccccccccccccccc');
         if (token) {
             return <Navigate to='/home' />;
         } else {
