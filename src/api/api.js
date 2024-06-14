@@ -1,8 +1,11 @@
 import { axiosInstance } from "./axiosInstance";
 
-export async function signup(signupData){
-    console.log(signupData ,'apiiiiiiiiiiii');
-    const data = await axiosInstance.post('/signup',signupData)
-    console.log(data);
+export async function signup(signupData) {
+    const data = await axiosInstance.post('/signup', signupData)
+    return data
+}
+
+export async function login(loginData) {
+    const data = await axiosInstance.post('/login', loginData)
     return data
 }

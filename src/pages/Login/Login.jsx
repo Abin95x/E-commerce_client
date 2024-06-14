@@ -5,21 +5,38 @@ import { AiOutlineMail } from "react-icons/ai";
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { login } from '../../api/api';
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (email.trim() === '') {
-      console.log('type email');
       toast.error('Please enter email');
+      return;
     }
     if (password.trim() === '') {
-      console.log('type password');
       toast.error('Please enter password');
+      return;
+    }
+
+    try {
+      const response = await login({ email: email, password: password });
+      if (response?.status === 200) {
+        toast.success('Signup successful');
+        localStorage.setItem('usertoken', response?.data?.usertoken);
+        navigate('/home');
+      } else {
+        toast.error('Email or password incorrect');
+      }
+    } catch (error) {
+      console.error('Login failed', error);
+      toast.error('An error occurred during login');
     }
   };
 
@@ -69,7 +86,7 @@ const Login = () => {
             </div>
             <p className='font-bold underline'>forgot password?</p>
             <div className='w-full flex justify-center m-5'>
-              <button type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
+              <button onClick={handleSubmit} type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
                 SIGN IN
               </button>
             </div>

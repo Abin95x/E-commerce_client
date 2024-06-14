@@ -17,12 +17,11 @@ const Signup = () => {
   const onSubmit = async (data) => {
     console.log(data)
     const response = await signup(data)
-    console.log(response);
-    if(response.status === 200){
+    console.log(response?.data);
+    if(response?.status === 200){
       toast('Signup successful')
+      localStorage.setItem('usertoken', response?.data?.usertoken);
       navigate('/home')
-    }else{
-      toast('user already registered with this email')
     }
   }
 

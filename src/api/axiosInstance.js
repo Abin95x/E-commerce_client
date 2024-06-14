@@ -27,21 +27,18 @@ axiosInstance.interceptors.request.use(async (req) => {
     return modifiedReq;
 });
 
-  
 axiosInstance.interceptors.response.use(
     (response) => response,
-    (error) => handleAxiosError(error,'user'),
+    (error) => handleAxiosError(error, 'user'),
 );
 
 const handleAxiosError = (error, role) => {
-    console.log(error)
-
     if (error.response) {
         if (error.response.status === 409) {
             toast('This email is already registered.');
-        } 
-    } 
+        }
+    }
 };
-  
+
 
 
