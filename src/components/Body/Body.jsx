@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Button, Modal } from 'antd';
+import { Input, Modal } from 'antd';
+
 
 
 const Body = () => {
@@ -8,9 +9,7 @@ const Body = () => {
     const [isModalOpen3, setIsModalOpen3] = useState(false);
 
 
-    const handleOk = () => {
-        setIsModalOpen1(false);
-    };
+
     return (
         <div className='w-full p-5'>
             <div className=' flex justify-end gap-5'>
@@ -36,24 +35,48 @@ const Body = () => {
                 </button>
             </div>
 
-            <Modal title="Add category" open={isModalOpen1} onOk={() => {
-                setIsModalOpen1(false)
-            }} onCancel={() => {
-                setIsModalOpen1(false)
-            }}>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
+            <Modal
+                className='mt-56 '
+                width={400}
+                open={isModalOpen1}
+                footer={null}
+                onCancel={() => {
+                    setIsModalOpen1(false)
+
+                }}>
+                <div className='grid justify-center'>
+                    <h1 className='text-2xl font-medium text-center m-5'>Add category</h1>
+                    <Input placeholder="Enter category name" className='mb-3' />
+                </div>
+                <div className='flex justify-center gap-5'>
+                    <button className=' p-3 bg-yellow-500 rounded-lg'>ADD</button>
+                    <button className='p-3 bg-gray-300 rounded-lg'>DISCARD</button>
+                </div>
+
             </Modal>
 
-            <Modal title="Add sub category" open={isModalOpen2} onOk={() => {
-                setIsModalOpen2(false)
-            }} onCancel={() => {
-                setIsModalOpen2(false)
-            }}>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
+
+            <Modal
+                className='mt-56 '
+                width={400}
+                footer={null}
+                open={isModalOpen2}
+                onOk={() => {
+                    setIsModalOpen2(false)
+                }} onCancel={() => {
+                    setIsModalOpen2(false)
+                }}>
+                <div className='grid justify-center'>
+                    <h1 className='text-2xl font-medium text-center m-5'>Add sub category</h1>
+                    <Input placeholder="Enter category name" className='mb-3' />
+                    <Input placeholder="Enter category name" className='mb-3' />
+
+                </div>
+                <div className='flex justify-center gap-5'>
+                    <button className=' p-3 bg-yellow-500 rounded-lg'>ADD</button>
+                    <button className='p-3 bg-gray-300 rounded-lg'>DISCARD</button>
+                </div>
+
             </Modal>
 
             <Modal title="Add product" open={isModalOpen3} onOk={() => {
