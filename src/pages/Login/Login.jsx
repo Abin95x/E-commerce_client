@@ -16,14 +16,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (email.trim() === '') {
-      toast.error('Please enter email');
+    if (email.trim() === '' || password.trim() === '') {
+      if (email.trim() === '') {
+        toast.error('Please enter email');
+      } else {
+        toast.error('Please enter password');
+      }
       return;
-    }
-    if (password.trim() === '') {
-      toast.error('Please enter password');
-      return;
-    }
+    }    
 
     try {
       const response = await login({ email: email, password: password });

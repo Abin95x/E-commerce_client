@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <div>
       <Header/>
-      <div className='flex md:flex-row flex-col'>
+      <div className='flex '>
         <SideBar/>
         <Body/>
       </div>
