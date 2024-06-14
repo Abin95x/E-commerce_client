@@ -5,6 +5,9 @@ import { AiOutlineMail } from "react-icons/ai";
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form'
+import { signup } from '../../api/api';
+import { toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 
 const Signup = () => {
@@ -13,6 +16,14 @@ const Signup = () => {
 
   const onSubmit = async (data) => {
     console.log(data)
+    const response = await signup(data)
+    console.log(response);
+    if(response.status === 200){
+      toast('Signup successful')
+      navigate('/home')
+    }else{
+      toast('user already registered with this email')
+    }
   }
 
   return (
@@ -69,12 +80,12 @@ const Signup = () => {
             </div>
 
             <div className='w-full mb-7 flex justify-center relative'>
-              {errors.password1 && <p className="text-red-500 absolute left-0 top-10">{errors.password1.message}</p>}
+              {errors.password && <p className="text-red-500 absolute left-0 top-10">{errors.password.message}</p>}
               <input
                 type="password"
                 className='bg-slate-100 w-96 p-2 pl-10 '
                 placeholder='Password'
-                {...register('password1', {
+                {...register('password', {
                   required: 'Password is required',
                   minLength: {
                     value: 8,
