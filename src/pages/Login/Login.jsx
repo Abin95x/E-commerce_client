@@ -1,10 +1,28 @@
-import React from 'react'
-import banner from '/banner.png';
-import { FiLock, FiUser, } from "react-icons/fi";
+import React, { useState } from 'react';
+import banner from '../../assets/banner.png';
+import { FiLock } from "react-icons/fi";
 import { AiOutlineMail } from "react-icons/ai";
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (email.trim() === '') {
+      console.log('type email');
+      toast.error('Please enter email');
+    }
+    if (password.trim() === '') {
+      console.log('type password');
+      toast.error('Please enter password');
+    }
+  };
+
   return (
     <div className='flex flex-col  md:flex-row-reverse'>
       <div className='relative bg-gray-100 md:w-[50%] w-full'>
@@ -23,29 +41,43 @@ const Login = () => {
         <div>
           <h1 className='text-center text-5xl text-yellow-400 font-bold mb-10 '>Sign In to <br /> Your Account</h1>
         </div>
-        <form action="">
+        <form onSubmit={handleSubmit}>
           <div className='flex flex-col items-center'>
-            <div className='w-full mb-4 flex justify-center relative'>
-              <input type="email" className='bg-slate-100 w-96 p-2 pl-10' placeholder='Email' />
+            <div className='w-full mb-7 flex justify-center relative'>
+              <input
+                type="email"
+                className='bg-slate-100 w-96 p-2 pl-10'
+                placeholder='Email'
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                }}
+              />
               <AiOutlineMail className='absolute left-3 top-1/2 transform -translate-y-1/2' />
             </div>
             <div className='w-full mb-4 flex justify-center relative'>
-              <input type="password" className='bg-slate-100 w-96 p-2 pl-10 ' placeholder='Password' />
+              <input
+                type="password"
+                className='bg-slate-100 w-96 p-2 pl-10 '
+                placeholder='Password'
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                }}
+              />
               <FiLock className='absolute left-3 top-1/2 transform -translate-y-1/2' />
             </div>
             <p className='font-bold underline'>forgot password?</p>
             <div className='w-full flex justify-center m-5'>
-              <button className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
+              <button type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
                 SIGN IN
               </button>
             </div>
           </div>
         </form>
       </div>
-
-
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
