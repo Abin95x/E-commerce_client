@@ -33,7 +33,7 @@ const Signup = () => {
           <h1 className='text-5xl font-semibold mb-7'>Welcome Back!</h1>
           <h3 className='text-xl font-light mb-10'>To keep connected with us please <br /> login with your personal info</h3>
           <Link to='/login'>
-            <button className="bg-transparent hover:bg-yellow-300 text-white font-semibold hover:text-black py-2 px-4 border border-white hover:border-transparent rounded-full w-56 h-12 ">
+            <button className="bg-transparent hover:bg-yellow-300 text-white font-semibold hover:text-black py-2 px-4 border border-white hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
               SIGN IN
             </button>
           </Link>
@@ -96,7 +96,7 @@ const Signup = () => {
             </div>
 
             <div className='w-full flex justify-center m-10'>
-              <button type='submit' disabled={isSubmitting} className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
+              <button type='submit' disabled={isSubmitting} className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
                 SIGN UP
               </button>
             </div>

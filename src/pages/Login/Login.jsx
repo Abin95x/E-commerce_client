@@ -48,7 +48,7 @@ const Login = () => {
           <h1 className='text-5xl font-semibold mb-7'>Hello Friend!</h1>
           <h3 className='text-xl font-light mb-10'>Enter your personal details and <br /> start your journey with us</h3>
           <Link to="/">
-            <button className="bg-transparent hover:bg-yellow-300 text-white font-semibold hover:text-black py-2 px-4 border border-white hover:border-transparent rounded-full w-56 h-12">
+            <button className="bg-transparent hover:bg-yellow-300 text-white font-semibold hover:text-black py-2 px-4 border border-white hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
               SIGN UP
             </button>
           </Link>
@@ -86,7 +86,7 @@ const Login = () => {
             </div>
             <p className='font-bold underline'>forgot password?</p>
             <div className='w-full flex justify-center m-5'>
-              <button onClick={handleSubmit} type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12">
+              <button onClick={handleSubmit} type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
                 SIGN IN
               </button>
             </div>
