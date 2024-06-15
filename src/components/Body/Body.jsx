@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Input, Modal, Select, Button, Upload, Form, InputNumber } from 'antd';
 import { addCategory, getCategory, addSubCategory, getOneCategory } from '../../api/categoryApi';
+import { addProduct } from '../../api/productsApi';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-import { UploadOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 
 
 
-
-
-const Body = () => {
+const Body = ({ products }) => {
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [isModalOpen2, setIsModalOpen2] = useState(false);
     const [isModalOpen3, setIsModalOpen3] = useState(false);
@@ -17,13 +15,20 @@ const Body = () => {
     const [categoryList, setCategoryList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [subCategory, setSubCategory] = useState('')
-
     const [productCategory, setProductCategory] = useState(null);
     const [productSubCategory, setProductSubCategory] = useState(null)
     const [subcategoryList, setSubcategoryList] = useState([]);
+    const [productName, setProductName] = useState('');
+    const [productBrand, setProductBrand] = useState('');
+    const [productDescription, setProductDescription] = useState('');
+    const [partNumber, setPartNumber] = useState('');
+    const [imgs, setImgs] = useState([]);
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const productsPerPage = 6;
 
-   
-
+    // const indexOfLastProduct = currentPage * productsPerPage;
+    // const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    // const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
 
 
@@ -47,8 +52,7 @@ const Body = () => {
     const handleCategory = async (value) => {
         setProductCategory(value)
         const response = await getOneCategory(value)
-        console.log(response);
-        setSubcategoryList(response.data.subcategories)
+        setSubcategoryList(response?.data?.subcategories)
     }
 
     const handleSubCategorySubmit = async (e) => {
@@ -70,13 +74,75 @@ const Body = () => {
         }
     }
 
+
+    const handleIngChange = (e) => {
+        const selectedCertificates = e.target.files;
+        setImgToBase(selectedCertificates);
+    };
+
+    const setImgToBase = async (files) => {
+        const imgArray = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.readAsDataURL(files[i]);
+            reader.onloadend = () => {
+                imgArray.push(reader.result);
+                setImgs([...imgArray]);
+            };
+        }
+    };
+
+
+
+
+
+
+    const handleProduct = async (e) => {
+        e.preventDefault()
+        if (productCategory === null ||
+            productSubCategory === null ||
+            productName.trim() === '' ||
+            productBrand.trim() === '' ||
+            productDescription.trim() === '' ||
+            partNumber.trim() === '' ||
+            imgs.length === 0) {
+
+            toast.error('Please fill out all fields before submitting.')
+            return;
+        }
+
+        const response = await addProduct({
+            name: productName,
+            brand: productBrand,
+            partno: partNumber,
+            description: productDescription,
+            category: productCategory,
+            subcategory: productSubCategory,
+            images: imgs
+        })
+        if (response?.status === 200) {
+            toast.success('Signup successful')
+            setIsModalOpen3('')
+            setProductCategory('')
+            setProductSubCategory('')
+            setProductName('')
+            setProductBrand('')
+            setProductDescription('')
+            setPartNumber('')
+            setImgs([])
+
+        }
+
+    }
+
     useEffect(() => {
         async function fetchCategory() {
             const response = await getCategory()
             setCategoryList(response?.data?.data)
         }
         fetchCategory()
-    }, [category])
+    }, [category,products])
 
 
 
@@ -111,10 +177,23 @@ const Body = () => {
 
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mt-4 gap-5 sm:px-4 md:px-8 lg:px-24">
+            {products.length>0 ? (products.map(product => (
+                    <div key={product._id} className="bg-white rounded-lg border w-80 p-5">
+                        <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
+                        <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+                        <p className="text-gray-700 mb-2">{product.description}</p>
+                        <p className="text-gray-600">Brand: {product.brand}</p>
+                        <p className="text-gray-600">Part No: {product.partno}</p>
+                    </div>
+                ))):     <div className='text-center col-span-full'>No Products</div>
+            }
+            </div>
+
             {/* category modal */}
 
             <Modal
-                className='mt-56 '
+                className='mt-40 '
                 width={400}
                 open={isModalOpen1}
                 footer={null}
@@ -153,7 +232,7 @@ const Body = () => {
             {/* sub category modal */}
 
             <Modal
-                className='mt-56 '
+                className='mt-40 '
                 width={400}
                 footer={null}
                 open={isModalOpen2}
@@ -223,7 +302,28 @@ const Body = () => {
                 <div>
                     <h1 className='text-2xl font-medium text-center m-5'>Add Product</h1>
                 </div>
-                <form action="">
+                <form onSubmit={handleProduct}>
+                    <Form.Item label="Product Name">
+                        <Input
+                            placeholder="Enter product name"
+                            value={productName}
+                            onChange={(e) => setProductName(e.target.value)}
+                        />
+                    </Form.Item>
+                    <Form.Item label="Brand">
+                        <Input
+                            placeholder="Enter brand"
+                            value={productBrand}
+                            onChange={(e) => setProductBrand(e.target.value)}
+                        />
+                    </Form.Item>
+                    <Form.Item label="Part Number">
+                        <Input
+                            placeholder="Enter part number"
+                            value={partNumber}
+                            onChange={(e) => setPartNumber(e.target.value)}
+                        />
+                    </Form.Item>
                     <Form.Item label="Category">
                         <Select
                             placeholder="Select category"
@@ -246,16 +346,58 @@ const Body = () => {
                             value={productSubCategory}
                             onChange={(value) => setProductSubCategory(value)}
                         >
-                            {subcategoryList && subcategoryList.map((subcategory,i) => (
+                            {subcategoryList && subcategoryList.map((subcategory, i) => (
                                 <Select.Option key={i} value={subcategory}>
                                     {subcategory.name}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
+                    <Form.Item label="Description">
+                        <Input
+                            placeholder="Enter description"
+                            value={productDescription}
+                            onChange={(e) => setProductDescription(e.target.value)}
+                        />
+                    </Form.Item>
+                    <Form.Item label="Images">
+                        <input
+                            type='file'
+                            className='file-input file-input-bordered file-input-info w-full max-w-xs'
+                            onChange={handleIngChange}
+                            multiple // Allow multiple file selection
+                            required
+                        />
+                        <div className="flex flex-wrap"> {/* Flex container for images */}
+                            {imgs.map((image, index) => (
+                                <div key={index} className="m-2"> {/* Margin for spacing */}
+                                    <img
+                                        src={image}
+                                        alt={`Selected ${index + 1}`}
+                                        className="max-w-20 max-h-20" // Adjust image size as needed
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </Form.Item>
 
+
+                    <div className='flex justify-center gap-5'>
+                        <button
+                            type='submit'
+                            className='p-3 bg-yellow-500 rounded-lg'>ADD
+                        </button>
+                        <button
+                            type='button'
+                            onClick={() => {
+                                setIsModalOpen3(false)
+                            }}
+                            className='p-3 bg-gray-300 rounded-lg'>DISCARD
+                        </button>
+                    </div>
                 </form>
             </Modal>
+
         </div>
     )
 }

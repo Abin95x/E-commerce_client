@@ -3,12 +3,13 @@ import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import { getCategory } from '../../api/categoryApi';
 import { getAllProducts } from '../../api/productsApi';
 
-const SideBar = () => {
+const SideBar = ({ productFn }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [category, setCategory] = useState([]);
-  const [selectedSubcategories, setSelectedSubcategories] = useState([]);
-
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [products, setProducts] = useState([]);
+  
   const handleDropdownClick = (categoryId) => {
     setOpenDropdown(openDropdown === categoryId ? null : categoryId);
   };
@@ -18,27 +19,41 @@ const SideBar = () => {
   };
 
   const toggleSubcategory = (subcategory) => {
-    setSelectedSubcategories(prevState => {
-      if (prevState.includes(subcategory)) {
-        return prevState.filter(item => item !== subcategory);
-      } else {
-        return [...prevState, subcategory];
-      }
-    });
+    setSelectedSubcategory(subcategory); 
   };
 
-  const getProducts = async ()=>{
-    const response = await getAllProducts()
-    console.log(response.data.data);
-  }
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const response = await getCategory();
+        setCategory(response?.data?.data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await getAllProducts();
+        setProducts(response?.data || []);
+        productFn(response?.data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchCategory();
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
-    async function fetchCategory() {
-      const response = await getCategory();
-      setCategory(response?.data?.data || []);
+    if (selectedSubcategory) {
+      const filteredProducts = products.filter(product => product.subcategory === selectedSubcategory);
+      productFn(filteredProducts);
+    } else {
+      productFn(products);
     }
-    fetchCategory();
-  }, [category]);
+  }, [selectedSubcategory, products, productFn]);
 
   return (
     <div>
@@ -61,10 +76,7 @@ const SideBar = () => {
                 <li key={item._id}>
                   <div
                     className='cursor-pointer flex justify-between items-center'
-                    onClick={() => {
-                      handleDropdownClick(item._id)
-                      getProducts()
-                    }}
+                    onClick={() => handleDropdownClick(item._id)}
                   >
                     {item.name}
                     <span>{openDropdown === item._id ? '▲' : '▼'}</span>
@@ -75,9 +87,9 @@ const SideBar = () => {
                         <li key={index}>
                           <label>
                             <input
-                              type="checkbox"
+                              type="radio"
                               onChange={() => toggleSubcategory(subcategory)}
-                              checked={selectedSubcategories.includes(subcategory)}
+                              checked={selectedSubcategory === subcategory}
                             />
                             {subcategory}
                           </label>
