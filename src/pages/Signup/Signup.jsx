@@ -5,7 +5,7 @@ import { AiOutlineMail } from "react-icons/ai";
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form'
-import { signup } from '../../api/api';
+import { signup } from '../../api/userApi';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 

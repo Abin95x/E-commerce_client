@@ -5,7 +5,7 @@ import { AiOutlineMail } from "react-icons/ai";
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-import { login } from '../../api/api';
+import { login } from '../../api/userApi';
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
@@ -23,7 +23,7 @@ const Login = () => {
         toast.error('Please enter password');
       }
       return;
-    }    
+    }
 
     try {
       const response = await login({ email: email, password: password });
@@ -86,7 +86,9 @@ const Login = () => {
             </div>
             <p className='font-bold underline'>forgot password?</p>
             <div className='w-full flex justify-center m-5'>
-              <button onClick={handleSubmit} type='submit' className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
+              <button
+                type='submit'
+                className="bg-yellow-400 hover:bg-yellow-400 text-white font-semibold hover:text-black py-2 px-4 border border-yellow-400 hover:border-transparent rounded-full w-56 h-12 transition-colors duration-300">
                 SIGN IN
               </button>
             </div>

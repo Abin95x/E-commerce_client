@@ -1,7 +1,10 @@
 import axios from 'axios';
-const baseURl = 'http://localhost:3000/';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+const baseURl = 'http://localhost:3000/';
+const userBaseURL = baseURl
+const categoryBaseURL = `${baseURl}category`
+
 
 const createAxiosInstance = (baseURL) => {
     const instance = axios.create({
@@ -20,22 +23,37 @@ const attachToken = (req, tokenName) => {
     return req;
 };
 
-export const axiosInstance = createAxiosInstance(baseURl);
 
-axiosInstance.interceptors.request.use(async (req) => {
+
+export const userAxiosInstance = createAxiosInstance(userBaseURL);
+userAxiosInstance.interceptors.request.use(async (req) => {
     const modifiedReq = attachToken(req, 'usertoken');
     return modifiedReq;
 });
-
-axiosInstance.interceptors.response.use(
+userAxiosInstance.interceptors.response.use(
     (response) => response,
     (error) => handleAxiosError(error, 'user'),
 );
 
-const handleAxiosError = (error, role) => {
+
+
+export const categoryAxiosInstance = createAxiosInstance(categoryBaseURL);
+categoryAxiosInstance.interceptors.request.use(async (req) => {
+    const modifiedReq = attachToken(req, 'usertoken');
+    return modifiedReq;
+});
+categoryAxiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => handleAxiosError(error, 'user'),
+);
+
+
+
+const handleAxiosError = (error) => {
+    console.log(error.response.data.message);
     if (error.response) {
         if (error.response.status === 409) {
-            toast('This email is already registered.');
+            toast(error.response.data.message);
         }
     }
 };
