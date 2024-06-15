@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Input, Modal } from 'antd';
-import { addCategory, getCategory } from '../../api/categoryApi';
+import { Input, Modal, Select, Button, Upload, Form, InputNumber } from 'antd';
+import { addCategory, getCategory, addSubCategory, getOneCategory } from '../../api/categoryApi';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { UploadOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+
+
 
 
 
@@ -10,14 +13,24 @@ const Body = () => {
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [isModalOpen2, setIsModalOpen2] = useState(false);
     const [isModalOpen3, setIsModalOpen3] = useState(false);
-
     const [category, setCategory] = useState('')
-    const [categoryList, setCategoryList] = useState('')
+    const [categoryList, setCategoryList] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [subCategory, setSubCategory] = useState('')
+
+    const [productCategory, setProductCategory] = useState(null);
+    const [productSubCategory, setProductSubCategory] = useState(null)
+    const [subcategoryList, setSubcategoryList] = useState([]);
+
+   
+
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const categoryRegex = /^[A-Za-z]+$/;
+        const categoryRegex = /^[A-Za-z ]+$/;
 
         if (category.trim() === '') {
             toast.error('Enter category name');
@@ -25,19 +38,48 @@ const Body = () => {
             toast.error('Category name should only contain letters');
         } else {
             const response = await addCategory(category)
-            console.log(response);
             toast(response?.data?.message)
             setIsModalOpen1(false)
             setCategory('')
         }
     }
 
-    const getCategoryHandle = async () => {
-        const response = await getCategory()
-        setCategoryList(response?.data?.data)
+    const handleCategory = async (value) => {
+        setProductCategory(value)
+        const response = await getOneCategory(value)
+        console.log(response);
+        setSubcategoryList(response.data.subcategories)
     }
 
-    console.log(categoryList);
+    const handleSubCategorySubmit = async (e) => {
+        e.preventDefault();
+        if (selectedCategory === null) {
+            toast.error('Select category')
+        }
+        if (subCategory.trim() === '') {
+            toast.error('Enter sub category name')
+        }
+        const response = await addSubCategory({ category: selectedCategory, subCategory: subCategory })
+        if (response.status === 200) {
+            toast.success(response.data.message)
+            setIsModalOpen2(false)
+            setSelectedCategory(null)
+            setSubCategory('')
+        } else {
+            toast.error(response.data.message)
+        }
+    }
+
+    useEffect(() => {
+        async function fetchCategory() {
+            const response = await getCategory()
+            setCategoryList(response?.data?.data)
+        }
+        fetchCategory()
+    }, [category])
+
+
+
 
 
     return (
@@ -55,7 +97,6 @@ const Body = () => {
 
                 <button
                     onClick={() => {
-                        getCategoryHandle()
                         setIsModalOpen2(true)
                     }} className="bg-yellow-500 hover:bg-[#003F62] text-white font-bold py-2 px-4 rounded-2xl transition-colors duration-300">
                     Add sub category
@@ -110,6 +151,7 @@ const Body = () => {
             </Modal>
 
             {/* sub category modal */}
+
             <Modal
                 className='mt-56 '
                 width={400}
@@ -120,27 +162,99 @@ const Body = () => {
                 }} onCancel={() => {
                     setIsModalOpen2(false)
                 }}>
-                <div className='grid justify-center'>
-                    <h1 className='text-2xl font-medium text-center m-5'>Add sub category</h1>
-                    <Input placeholder="Enter category name" className='mb-3' />
-                    <Input placeholder="Enter category name" className='mb-3' />
+                <form onSubmit={handleSubCategorySubmit}>
+                    <div className='grid justify-center'>
+                        <h1 className='text-2xl font-medium text-center m-5'>Add sub category</h1>
 
-                </div>
-                <div className='flex justify-center gap-5'>
-                    <button className=' p-3 bg-yellow-500 rounded-lg'>ADD</button>
-                    <button className='p-3 bg-gray-300 rounded-lg'>DISCARD</button>
-                </div>
+                        <Select
+                            placeholder="Select category"
+                            className='mb-3 w-full'
+                            value={selectedCategory}
+                            onChange={(value) => setSelectedCategory(value)}
+                        >
+                            {categoryList && categoryList.map((category) => (
+                                <Select.Option key={category._id} value={category._id}>
+                                    {category.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                        <Input
+                            value={subCategory}
+                            onChange={(e) => {
+                                setSubCategory(e.target.value)
+                            }}
+                            placeholder="Enter sub category name"
+                            className='mb-3'
+                        />
+
+                    </div>
+                    <div className='flex justify-center gap-5'>
+                        <button
+                            className=' p-3 bg-yellow-500 rounded-lg'
+                            type='submit'
+                        >
+                            ADD
+                        </button>
+                        <button
+                            type='button'
+                            className='p-3 bg-gray-300 rounded-lg'
+                            onClick={() => {
+                                setIsModalOpen2(false)
+                                setSelectedCategory(null)
+                                setSubCategory('')
+                            }}
+                        >
+                            DISCARD
+                        </button>
+                    </div>
+                </form>
 
             </Modal>
 
-            <Modal title="Add product" open={isModalOpen3} onOk={() => {
-                setIsModalOpen3(false)
-            }} onCancel={() => {
-                setIsModalOpen3(false)
-            }}>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
+            {/* add product modal*/}
+
+            <Modal
+                className=''
+                width={600}
+                footer={null}
+                open={isModalOpen3}
+                onCancel={() => setIsModalOpen3(false)}
+            >
+                <div>
+                    <h1 className='text-2xl font-medium text-center m-5'>Add Product</h1>
+                </div>
+                <form action="">
+                    <Form.Item label="Category">
+                        <Select
+                            placeholder="Select category"
+                            value={productCategory}
+                            onChange={(value) => {
+                                handleCategory(value)
+                                setProductSubCategory('')
+                            }}
+                        >
+                            {categoryList && categoryList.map((category) => (
+                                <Select.Option key={category._id} value={category._id}>
+                                    {category.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="Subcategory">
+                        <Select
+                            placeholder="Select subcategory"
+                            value={productSubCategory}
+                            onChange={(value) => setProductSubCategory(value)}
+                        >
+                            {subcategoryList && subcategoryList.map((subcategory,i) => (
+                                <Select.Option key={i} value={subcategory}>
+                                    {subcategory.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                </form>
             </Modal>
         </div>
     )

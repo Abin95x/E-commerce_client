@@ -4,6 +4,8 @@ import "react-toastify/dist/ReactToastify.css";
 const baseURl = 'http://localhost:3000/';
 const userBaseURL = baseURl
 const categoryBaseURL = `${baseURl}category`
+const productBaseURL = `${baseURl}product`
+
 
 
 const createAxiosInstance = (baseURL) => {
@@ -36,7 +38,6 @@ userAxiosInstance.interceptors.response.use(
 );
 
 
-
 export const categoryAxiosInstance = createAxiosInstance(categoryBaseURL);
 categoryAxiosInstance.interceptors.request.use(async (req) => {
     const modifiedReq = attachToken(req, 'usertoken');
@@ -48,12 +49,28 @@ categoryAxiosInstance.interceptors.response.use(
 );
 
 
+export const productAxiosInstance = createAxiosInstance( productBaseURL);
+productAxiosInstance.interceptors.request.use(async (req) => {
+    const modifiedReq = attachToken(req, 'usertoken');
+    return modifiedReq;
+});
+productAxiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => handleAxiosError(error, 'user'),
+);
+
+
 
 const handleAxiosError = (error) => {
     console.log(error.response.data.message);
     if (error.response) {
         if (error.response.status === 409) {
-            toast(error.response.data.message);
+            toast.error(error.response.data.message);
+        }else if(error.response.status === 400){
+            toast.error(error.response.data.message);
+        }else if(error.response.status === 500){
+            toast.error(error.response.data.message);
+
         }
     }
 };
