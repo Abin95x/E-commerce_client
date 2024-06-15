@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FaToggleOn, FaToggleOff } from "react-icons/fa";
+import { Menu, Radio } from 'antd';
+import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { getCategory } from '../../api/categoryApi';
 import { getAllProducts } from '../../api/productsApi';
 
@@ -9,7 +10,7 @@ const SideBar = ({ productFn }) => {
   const [category, setCategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [products, setProducts] = useState([]);
-  
+
   const handleDropdownClick = (categoryId) => {
     setOpenDropdown(openDropdown === categoryId ? null : categoryId);
   };
@@ -19,7 +20,11 @@ const SideBar = ({ productFn }) => {
   };
 
   const toggleSubcategory = (subcategory) => {
-    setSelectedSubcategory(subcategory); 
+    setSelectedSubcategory(subcategory);
+  };
+
+  const handleAllProductsClick = () => {
+    setSelectedSubcategory(null);
   };
 
   useEffect(() => {
@@ -70,37 +75,35 @@ const SideBar = ({ productFn }) => {
         <h1 className='m-8'>Home</h1>
         <div className='bg-white h-[800px]'>
           <h1 className='m-8 text-blue-700 font-medium'>Categories</h1>
-          <div>
-            <ul className='px-8 space-y-4'>
-              {category && category.map((item) => (
-                <li key={item._id}>
-                  <div
-                    className='cursor-pointer flex justify-between items-center'
-                    onClick={() => handleDropdownClick(item._id)}
-                  >
-                    {item.name}
-                    <span>{openDropdown === item._id ? '▲' : '▼'}</span>
-                  </div>
-                  {openDropdown === item._id && item.subcategories.length > 0 && (
-                    <ul className='pl-8 space-y-2'>
-                      {item.subcategories.map((subcategory, index) => (
-                        <li key={index}>
-                          <label>
-                            <input
-                              type="radio"
-                              onChange={() => toggleSubcategory(subcategory)}
-                              checked={selectedSubcategory === subcategory}
-                            />
-                            {subcategory}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <h1
+            className='text-sm mx-7 mb-2 cursor-pointer'
+            onClick={handleAllProductsClick}
+          >
+            All products
+          </h1>
+          <Menu
+            mode="inline"
+            defaultOpenKeys={[openDropdown]}
+            onClick={({ key }) => handleDropdownClick(key)}
+          >
+            {category && category.map((item) => (
+              <Menu.SubMenu
+                key={item._id}
+                title={item.name}
+              >
+                {item.subcategories.map((subcategory, index) => (
+                  <Menu.Item key={`${item._id}-${index}`}>
+                    <Radio
+                      onChange={() => toggleSubcategory(subcategory)}
+                      checked={selectedSubcategory === subcategory}
+                    >
+                      {subcategory}
+                    </Radio>
+                  </Menu.Item>
+                ))}
+              </Menu.SubMenu>
+            ))}
+          </Menu>
         </div>
       </div>
     </div>

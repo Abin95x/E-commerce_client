@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Input, Modal, Select, Button, Upload, Form, InputNumber } from 'antd';
+import { Input, Modal, Select, Form, Pagination } from 'antd';
 import { addCategory, getCategory, addSubCategory, getOneCategory } from '../../api/categoryApi';
 import { addProduct } from '../../api/productsApi';
 import { toast } from 'react-toastify';
@@ -23,12 +23,13 @@ const Body = ({ products }) => {
     const [productDescription, setProductDescription] = useState('');
     const [partNumber, setPartNumber] = useState('');
     const [imgs, setImgs] = useState([]);
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const productsPerPage = 6;
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage] = useState(6);
 
-    // const indexOfLastProduct = currentPage * productsPerPage;
-    // const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    // const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+    const totalProducts = products.length;
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
 
 
@@ -74,7 +75,6 @@ const Body = ({ products }) => {
         }
     }
 
-
     const handleIngChange = (e) => {
         const selectedCertificates = e.target.files;
         setImgToBase(selectedCertificates);
@@ -92,11 +92,6 @@ const Body = ({ products }) => {
             };
         }
     };
-
-
-
-
-
 
     const handleProduct = async (e) => {
         e.preventDefault()
@@ -131,9 +126,11 @@ const Body = ({ products }) => {
             setProductDescription('')
             setPartNumber('')
             setImgs([])
-
         }
+    }
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     }
 
     useEffect(() => {
@@ -142,10 +139,7 @@ const Body = ({ products }) => {
             setCategoryList(response?.data?.data)
         }
         fetchCategory()
-    }, [category,products])
-
-
-
+    }, [category, products])
 
 
     return (
@@ -178,16 +172,29 @@ const Body = ({ products }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mt-4 gap-5 sm:px-4 md:px-8 lg:px-24">
-            {products.length>0 ? (products.map(product => (
-                    <div key={product._id} className="bg-white rounded-lg border w-80 p-5">
-                        <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
-                        <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                        <p className="text-gray-700 mb-2">{product.description}</p>
-                        <p className="text-gray-600">Brand: {product.brand}</p>
-                        <p className="text-gray-600">Part No: {product.partno}</p>
-                    </div>
-                ))):     <div className='text-center col-span-full'>No Products</div>
-            }
+    {currentProducts.length > 0 ? (
+        currentProducts.map(product => (
+            <div key={product._id} className="bg-white rounded-lg border w-80 p-5">
+                <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
+                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+                <p className="text-gray-700 mb-2">{product.description}</p>
+                <p className="text-gray-600">Brand: {product.brand}</p>
+                <p className="text-gray-600">Part No: {product.partno}</p>
+            </div>
+        ))
+    ) : (
+        <div className='text-center col-span-full'>No Products</div>
+    )}
+</div>
+
+
+            <div className="mt-5 flex justify-center">
+                <Pagination
+                    current={currentPage}
+                    pageSize={productsPerPage}
+                    total={totalProducts}
+                    onChange={handlePageChange}
+                />
             </div>
 
             {/* category modal */}
@@ -397,6 +404,8 @@ const Body = ({ products }) => {
                     </div>
                 </form>
             </Modal>
+
+
 
         </div>
     )
