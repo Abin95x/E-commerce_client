@@ -6,13 +6,15 @@ import SideBar from '../../components/SideBar/SideBar'
 
 
 const Home = () => {
-  const [product,setProduct] = useState([])
+  const [products,setProducts] = useState([])
+  const [search,setSearch] = useState('')
+  console.log(search);
   return (
     <div>
-      <Header/>
+      <Header search={setSearch}/>
       <div className='flex '>
-        <SideBar productFn ={setProduct}/>
-        <Body products={product}/>
+        <SideBar productFn = {setProducts} search = {search}/>
+        <Body products = {products}/>
       </div>
     </div>
   )

@@ -4,12 +4,13 @@ import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { getCategory } from '../../api/categoryApi';
 import { getAllProducts } from '../../api/productsApi';
 
-const SideBar = ({ productFn }) => {
+const SideBar = ({ productFn, search }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [category, setCategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const handleDropdownClick = (categoryId) => {
     setOpenDropdown(openDropdown === categoryId ? null : categoryId);
@@ -41,6 +42,7 @@ const SideBar = ({ productFn }) => {
       try {
         const response = await getAllProducts();
         setProducts(response?.data || []);
+        setFilteredProducts(response?.data || []);
         productFn(response?.data || []);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -53,12 +55,25 @@ const SideBar = ({ productFn }) => {
 
   useEffect(() => {
     if (selectedSubcategory) {
-      const filteredProducts = products.filter(product => product.subcategory === selectedSubcategory);
-      productFn(filteredProducts);
+      const filtered = products.filter(product => product.subcategory === selectedSubcategory);
+      setFilteredProducts(filtered);
+      productFn(filtered);
     } else {
+      setFilteredProducts(products);
       productFn(products);
     }
   }, [selectedSubcategory, products, productFn]);
+
+  useEffect(() => {
+    if (search) {
+      const filtered = products.filter(product => product.name.toLowerCase().includes(search.toLowerCase()));
+      setFilteredProducts(filtered);
+      productFn(filtered);
+    } else {
+      setFilteredProducts(products);
+      productFn(products);
+    }
+  }, [search, products, productFn]);
 
   return (
     <div>
