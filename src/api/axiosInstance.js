@@ -3,7 +3,9 @@ import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
 
-const baseURl = import.meta.env.VITE_BASE_URL;
+// const baseURl = import.meta.env.VITE_BASE_URL;
+const baseURl = 'https://e-commerce-server-n009.onrender.com/'
+
 const userBaseURL = `${baseURl}`
 const categoryBaseURL = `${baseURl}category`
 const productBaseURL = `${baseURl}product`
