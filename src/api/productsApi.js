@@ -10,3 +10,13 @@ export async function getAllProducts(){
     return data
 }
 
+export async function getDetails(id){
+    const data = await productAxiosInstance.get(`/get-details?id=${id}`)
+    return data
+}
+
+export async function editProduct(details){
+    const data = await productAxiosInstance.post('/edit-details',details)
+    return data
+}
+
