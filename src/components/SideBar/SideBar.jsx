@@ -4,13 +4,13 @@ import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { getCategory } from '../../api/categoryApi';
 import { getAllProducts } from '../../api/productsApi';
 
-const SideBar = ({ productFn, search }) => {
+const SideBar = ({ productFn, search, category, setCategory }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [category, setCategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+
 
   const handleDropdownClick = (categoryId) => {
     setOpenDropdown(openDropdown === categoryId ? null : categoryId);
@@ -37,7 +37,11 @@ const SideBar = ({ productFn, search }) => {
         console.error('Error fetching categories:', error);
       }
     };
+    
+    fetchCategory();
+  }, []);
 
+  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await getAllProducts();
@@ -48,10 +52,11 @@ const SideBar = ({ productFn, search }) => {
         console.error('Error fetching products:', error);
       }
     };
-
-    fetchCategory();
+   
     fetchProducts();
-  }, []);
+  }, [])
+
+
 
   useEffect(() => {
     if (selectedSubcategory) {
@@ -66,7 +71,7 @@ const SideBar = ({ productFn, search }) => {
 
   useEffect(() => {
     if (search) {
-      const filtered = products.filter(product => product.name.toLowerCase().includes(search.toLowerCase()));
+      const filtered = products.filter(product => product.name.toLowerCase().startsWith(search.toLowerCase()));
       setFilteredProducts(filtered);
       productFn(filtered);
     } else {
@@ -74,6 +79,7 @@ const SideBar = ({ productFn, search }) => {
       productFn(products);
     }
   }, [search, products, productFn]);
+
 
   return (
     <div>

@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-const baseURl = 'http://localhost:3000/';
+
+
+const baseURl = import.meta.env.VITE_BASE_URL;
 const userBaseURL = baseURl
 const categoryBaseURL = `${baseURl}category`
 const productBaseURL = `${baseURl}product`
@@ -62,7 +64,7 @@ productAxiosInstance.interceptors.response.use(
 
 
 const handleAxiosError = (error) => {
-    console.log(error.response.data.message);
+    console.log(error.response.data);
     if (error.response) {
         if (error.response.status === 409) {
             toast.error(error.response.data.message);

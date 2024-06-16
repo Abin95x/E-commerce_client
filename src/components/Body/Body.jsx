@@ -4,25 +4,30 @@ import { addCategory, getCategory, addSubCategory, getOneCategory } from '../../
 import { addProduct } from '../../api/productsApi';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from 'react-router-dom';
 
 
 
-const Body = ({ products }) => {
+const Body = ({ products, setCategories ,setData}) => {
+    
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [isModalOpen2, setIsModalOpen2] = useState(false);
     const [isModalOpen3, setIsModalOpen3] = useState(false);
+
     const [category, setCategory] = useState('')
     const [categoryList, setCategoryList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [subCategory, setSubCategory] = useState('')
+    const [subcategoryList, setSubcategoryList] = useState([]);
+
     const [productCategory, setProductCategory] = useState(null);
     const [productSubCategory, setProductSubCategory] = useState(null)
-    const [subcategoryList, setSubcategoryList] = useState([]);
     const [productName, setProductName] = useState('');
     const [productBrand, setProductBrand] = useState('');
     const [productDescription, setProductDescription] = useState('');
-    const [partNumber, setPartNumber] = useState('');
+    const [price, setPrice] = useState('');
     const [imgs, setImgs] = useState([]);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(6);
 
@@ -30,6 +35,7 @@ const Body = ({ products }) => {
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+    const navigate = useNavigate()
 
 
 
@@ -44,6 +50,8 @@ const Body = ({ products }) => {
             toast.error('Category name should only contain letters');
         } else {
             const response = await addCategory(category)
+            console.log(response.data.data,'broooooooooo');
+            setCategories(response?.data?.data || []);
             toast(response?.data?.message)
             setIsModalOpen1(false)
             setCategory('')
@@ -75,7 +83,7 @@ const Body = ({ products }) => {
         }
     }
 
-    const handleIngChange = (e) => {
+    const handleImgChange = (e) => {
         const selectedCertificates = e.target.files;
         setImgToBase(selectedCertificates);
     };
@@ -100,17 +108,22 @@ const Body = ({ products }) => {
             productName.trim() === '' ||
             productBrand.trim() === '' ||
             productDescription.trim() === '' ||
-            partNumber.trim() === '' ||
+            price.trim() === '' ||
             imgs.length === 0) {
 
             toast.error('Please fill out all fields before submitting.')
+            return;
+        }
+    
+        if(isNaN(Number(price))){
+            toast.error('Price should be number')
             return;
         }
 
         const response = await addProduct({
             name: productName,
             brand: productBrand,
-            partno: partNumber,
+            price: price,
             description: productDescription,
             category: productCategory,
             subcategory: productSubCategory,
@@ -124,7 +137,7 @@ const Body = ({ products }) => {
             setProductName('')
             setProductBrand('')
             setProductDescription('')
-            setPartNumber('')
+            setPrice('')
             setImgs([])
         }
     }
@@ -133,13 +146,23 @@ const Body = ({ products }) => {
         setCurrentPage(page);
     }
 
+    const handleClick = (id) => {
+        console.log(id);
+        try{
+            navigate(`/details?id=${id}`);
+        }catch(error){
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         async function fetchCategory() {
             const response = await getCategory()
             setCategoryList(response?.data?.data)
         }
         fetchCategory()
-    }, [category, products])
+        
+    }, [])
 
 
     return (
@@ -172,20 +195,20 @@ const Body = ({ products }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mt-4 gap-5 sm:px-4 md:px-8 lg:px-24">
-    {currentProducts.length > 0 ? (
-        currentProducts.map(product => (
-            <div key={product._id} className="bg-white rounded-lg border w-80 p-5">
-                <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
-                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                <p className="text-gray-700 mb-2">{product.description}</p>
-                <p className="text-gray-600">Brand: {product.brand}</p>
-                <p className="text-gray-600">Part No: {product.partno}</p>
+                {currentProducts.length > 0 ? (
+                    currentProducts.map(product => (
+                        <div onClick={()=>handleClick(product._id)} key={product._id} className="bg-white rounded-lg border w-80 p-5">
+                            <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
+                            <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+                            <p className="text-gray-700 mb-2">{product.description}</p>
+                            <p className="text-gray-600">Brand: {product.brand}</p>
+                            <p className="text-gray-600">Price:  ₹ {product.price}</p>
+                        </div>
+                    ))
+                ) : (
+                    <div className='text-center col-span-full'>No Products</div>
+                )}
             </div>
-        ))
-    ) : (
-        <div className='text-center col-span-full'>No Products</div>
-    )}
-</div>
 
 
             <div className="mt-5 flex justify-center">
@@ -324,11 +347,16 @@ const Body = ({ products }) => {
                             onChange={(e) => setProductBrand(e.target.value)}
                         />
                     </Form.Item>
-                    <Form.Item label="Part Number">
+                    <Form.Item label="Price">
                         <Input
                             placeholder="Enter part number"
-                            value={partNumber}
-                            onChange={(e) => setPartNumber(e.target.value)}
+                            value={price}
+                             onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d*\.?\d*$/.test(value)) { // regex to allow only numbers and optionally a decimal point
+                                    setPrice(value);
+                                }
+                            }}
                         />
                     </Form.Item>
                     <Form.Item label="Category">
@@ -371,7 +399,7 @@ const Body = ({ products }) => {
                         <input
                             type='file'
                             className='file-input file-input-bordered file-input-info w-full max-w-xs'
-                            onChange={handleIngChange}
+                            onChange={handleImgChange}
                             multiple // Allow multiple file selection
                             required
                         />
