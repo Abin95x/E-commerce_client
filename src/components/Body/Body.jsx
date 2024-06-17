@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import { Input, Modal, Select, Form, Pagination } from 'antd';
+import {  Pagination } from 'antd';
 import { addCategory, getCategory, addSubCategory, getOneCategory } from '../../api/categoryApi';
 import { addProduct } from '../../api/productsApi';
 import { toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from 'react-router-dom';
+import CategoryModal from '../Modals/CategoryModal';
+import ProductModal from '../Modals/ProductModal';
+import SubCategoryModal from '../Modals/SubCategoryModal';
 
-
-
-const Body = ({ products, setCategories ,setData}) => {
-    
+const Body = ({ products, setCategories }) => {
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const [isModalOpen2, setIsModalOpen2] = useState(false);
     const [isModalOpen3, setIsModalOpen3] = useState(false);
-
     const [category, setCategory] = useState('')
     const [categoryList, setCategoryList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [subCategory, setSubCategory] = useState('')
     const [subcategoryList, setSubcategoryList] = useState([]);
-
     const [productCategory, setProductCategory] = useState(null);
     const [productSubCategory, setProductSubCategory] = useState(null)
     const [productName, setProductName] = useState('');
@@ -27,30 +25,24 @@ const Body = ({ products, setCategories ,setData}) => {
     const [productDescription, setProductDescription] = useState('');
     const [price, setPrice] = useState('');
     const [imgs, setImgs] = useState([]);
-
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(6);
-
     const totalProducts = products.length;
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
     const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
     const navigate = useNavigate()
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const categoryRegex = /^[A-Za-z ]+$/;
-
         if (category.trim() === '') {
             toast.error('Enter category name');
         } else if (!categoryRegex.test(category)) {
             toast.error('Category name should only contain letters');
         } else {
             const response = await addCategory(category)
-            console.log(response.data.data,'broooooooooo');
+            console.log(response.data.data, 'broooooooooo');
             setCategories(response?.data?.data || []);
             toast(response?.data?.message)
             setIsModalOpen1(false)
@@ -74,12 +66,12 @@ const Body = ({ products, setCategories ,setData}) => {
         }
         const response = await addSubCategory({ category: selectedCategory, subCategory: subCategory })
         if (response.status === 200) {
-            toast.success(response.data.message)
+            toast.success(response?.data?.message)
             setIsModalOpen2(false)
             setSelectedCategory(null)
             setSubCategory('')
         } else {
-            toast.error(response.data.message)
+            toast.error(response?.data?.message)
         }
     }
 
@@ -110,12 +102,11 @@ const Body = ({ products, setCategories ,setData}) => {
             productDescription.trim() === '' ||
             price.trim() === '' ||
             imgs.length === 0) {
-
             toast.error('Please fill out all fields before submitting.')
             return;
         }
-    
-        if(isNaN(Number(price))){
+
+        if (isNaN(Number(price))) {
             toast.error('Price should be number')
             return;
         }
@@ -148,9 +139,9 @@ const Body = ({ products, setCategories ,setData}) => {
 
     const handleClick = (id) => {
         console.log(id);
-        try{
+        try {
             navigate(`/details?id=${id}`);
-        }catch(error){
+        } catch (error) {
             console.log(error);
         }
     }
@@ -161,14 +152,13 @@ const Body = ({ products, setCategories ,setData}) => {
             setCategoryList(response?.data?.data)
         }
         fetchCategory()
-        
     }, [])
 
+    console.log(categoryList);
 
     return (
         <div className='w-full p-5'>
             <div className=' flex justify-end gap-5'>
-
                 <button
                     onClick={() => {
                         setIsModalOpen1(true)
@@ -191,13 +181,12 @@ const Body = ({ products, setCategories ,setData}) => {
                     }} className="bg-yellow-500 hover:bg-[#003F62] text-white font-bold py-2 px-4 rounded-2xl transition-colors duration-300">
                     Add product
                 </button>
-
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  mt-4 gap-5 sm:px-4 md:px-8 lg:px-24">
                 {currentProducts.length > 0 ? (
                     currentProducts.map(product => (
-                        <div onClick={()=>handleClick(product._id)} key={product._id} className="bg-white rounded-lg border w-80 p-5">
+                        <div onClick={() => handleClick(product._id)} key={product._id} className="bg-white rounded-lg border w-80 p-5">
                             <img src={product.images[0]} alt={product.name} className=" w-full h-48 object-cover mb-4" />
                             <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
                             <p className="text-gray-700 mb-2">{product.description}</p>
@@ -210,7 +199,6 @@ const Body = ({ products, setCategories ,setData}) => {
                 )}
             </div>
 
-
             <div className="mt-5 flex justify-center">
                 <Pagination
                     current={currentPage}
@@ -219,222 +207,48 @@ const Body = ({ products, setCategories ,setData}) => {
                     onChange={handlePageChange}
                 />
             </div>
-
             {/* category modal */}
-
-            <Modal
-                className='mt-40 '
-                width={400}
-                open={isModalOpen1}
-                footer={null}
-                onCancel={() => {
-                    setIsModalOpen1(false)
-                }}>
-                <form onSubmit={handleSubmit}>
-                    <div className='grid justify-center'>
-                        <h1 className='text-2xl font-medium text-center m-5'>Add category</h1>
-                        <Input
-                            placeholder="Enter category name"
-                            className='mb-3'
-                            value={category}
-                            onChange={(e) => {
-                                setCategory(e.target.value)
-                            }}
-                        />
-                    </div>
-                    <div className='flex justify-center gap-5'>
-                        <button
-                            type='submit'
-                            className='p-3 bg-yellow-500 rounded-lg'>ADD
-                        </button>
-                        <button
-                            type='button'
-                            onClick={() => {
-                                setIsModalOpen1(false)
-                                setCategory('')
-                            }}
-                            className='p-3 bg-gray-300 rounded-lg'>DISCARD
-                        </button>
-                    </div>
-                </form>
-            </Modal>
-
-            {/* sub category modal */}
-
-            <Modal
-                className='mt-40 '
-                width={400}
-                footer={null}
-                open={isModalOpen2}
-                onOk={() => {
-                    setIsModalOpen2(false)
-                }} onCancel={() => {
-                    setIsModalOpen2(false)
-                }}>
-                <form onSubmit={handleSubCategorySubmit}>
-                    <div className='grid justify-center'>
-                        <h1 className='text-2xl font-medium text-center m-5'>Add sub category</h1>
-
-                        <Select
-                            placeholder="Select category"
-                            className='mb-3 w-full'
-                            value={selectedCategory}
-                            onChange={(value) => setSelectedCategory(value)}
-                        >
-                            {categoryList && categoryList.map((category) => (
-                                <Select.Option key={category._id} value={category._id}>
-                                    {category.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                        <Input
-                            value={subCategory}
-                            onChange={(e) => {
-                                setSubCategory(e.target.value)
-                            }}
-                            placeholder="Enter sub category name"
-                            className='mb-3'
-                        />
-
-                    </div>
-                    <div className='flex justify-center gap-5'>
-                        <button
-                            className=' p-3 bg-yellow-500 rounded-lg'
-                            type='submit'
-                        >
-                            ADD
-                        </button>
-                        <button
-                            type='button'
-                            className='p-3 bg-gray-300 rounded-lg'
-                            onClick={() => {
-                                setIsModalOpen2(false)
-                                setSelectedCategory(null)
-                                setSubCategory('')
-                            }}
-                        >
-                            DISCARD
-                        </button>
-                    </div>
-                </form>
-
-            </Modal>
-
+            <CategoryModal
+                isModalOpen1={isModalOpen1}
+                setIsModalOpen1={setIsModalOpen1}
+                category={category}
+                setCategory={setCategory}
+                handleSubmit={handleSubmit}
+            />
             {/* add product modal*/}
-
-            <Modal
-                className=''
-                width={600}
-                footer={null}
-                open={isModalOpen3}
-                onCancel={() => setIsModalOpen3(false)}
-            >
-                <div>
-                    <h1 className='text-2xl font-medium text-center m-5'>Add Product</h1>
-                </div>
-                <form onSubmit={handleProduct}>
-                    <Form.Item label="Product Name">
-                        <Input
-                            placeholder="Enter product name"
-                            value={productName}
-                            onChange={(e) => setProductName(e.target.value)}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Brand">
-                        <Input
-                            placeholder="Enter brand"
-                            value={productBrand}
-                            onChange={(e) => setProductBrand(e.target.value)}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Price">
-                        <Input
-                            placeholder="Enter part number"
-                            value={price}
-                             onChange={(e) => {
-                                const value = e.target.value;
-                                if (/^\d*\.?\d*$/.test(value)) { // regex to allow only numbers and optionally a decimal point
-                                    setPrice(value);
-                                }
-                            }}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Category">
-                        <Select
-                            placeholder="Select category"
-                            value={productCategory}
-                            onChange={(value) => {
-                                handleCategory(value)
-                                setProductSubCategory('')
-                            }}
-                        >
-                            {categoryList && categoryList.map((category) => (
-                                <Select.Option key={category._id} value={category._id}>
-                                    {category.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Subcategory">
-                        <Select
-                            placeholder="Select subcategory"
-                            value={productSubCategory}
-                            onChange={(value) => setProductSubCategory(value)}
-                        >
-                            {subcategoryList && subcategoryList.map((subcategory, i) => (
-                                <Select.Option key={i} value={subcategory}>
-                                    {subcategory.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Description">
-                        <Input
-                            placeholder="Enter description"
-                            value={productDescription}
-                            onChange={(e) => setProductDescription(e.target.value)}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Images">
-                        <input
-                            type='file'
-                            className='file-input file-input-bordered file-input-info w-full max-w-xs'
-                            onChange={handleImgChange}
-                            multiple // Allow multiple file selection
-                            required
-                        />
-                        <div className="flex flex-wrap"> {/* Flex container for images */}
-                            {imgs.map((image, index) => (
-                                <div key={index} className="m-2"> {/* Margin for spacing */}
-                                    <img
-                                        src={image}
-                                        alt={`Selected ${index + 1}`}
-                                        className="max-w-20 max-h-20" // Adjust image size as needed
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </Form.Item>
-
-
-                    <div className='flex justify-center gap-5'>
-                        <button
-                            type='submit'
-                            className='p-3 bg-yellow-500 rounded-lg'>ADD
-                        </button>
-                        <button
-                            type='button'
-                            onClick={() => {
-                                setIsModalOpen3(false)
-                            }}
-                            className='p-3 bg-gray-300 rounded-lg'>DISCARD
-                        </button>
-                    </div>
-                </form>
-            </Modal>
-
-
-
+            <ProductModal
+                isModalOpen3={isModalOpen3}
+                setIsModalOpen3={setIsModalOpen3}
+                productName={productName}
+                setProductName={setProductName}
+                handleProduct={handleProduct}
+                productBrand={productBrand}
+                setProductBrand={setProductBrand}
+                price={price}
+                setPrice={setPrice}
+                productCategory={productCategory}
+                handleCategory={handleCategory}
+                setProductSubCategory={setProductSubCategory}
+                categoryList={categoryList}
+                subcategoryList={subcategoryList}
+                productDescription={productDescription}
+                setProductDescription={setProductDescription}
+                handleImgChange={handleImgChange}
+                imgs={imgs}
+                productSubCategory={productSubCategory}
+            />
+            {/* sub category modal */}
+            <SubCategoryModal
+                isModalOpen2={isModalOpen2}
+                setIsModalOpen2={setIsModalOpen2}
+                subCategory={subCategory}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                setSubCategory={setSubCategory}
+                handleSubCategorySubmit={handleSubCategorySubmit}
+                categoryList={categoryList}
+                subcategoryList={subcategoryList}
+            />
         </div>
     )
 }
